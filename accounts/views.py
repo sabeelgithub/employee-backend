@@ -6,12 +6,15 @@ from  rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenRefreshView
-
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.hashers import check_password
 
 from .serializers import (
     UserWriteSerializer,
+    UserReadSerializer,
     LoginSerializer,
-    TokenRefreshSerializer
+    TokenRefreshSerializer,
+    ChangePasswordSerializer
     )
 from utils import (
     internal_server_error_response,
@@ -26,8 +29,13 @@ from .helpers import (
     invalid_username_or_password,
     login_success,
     new_refresh_token_create_success,
-    invalid_refresh_token
+    invalid_refresh_token,
+    user_password_change_success,
+    user_password_does_not_match,
+    user_password_same_as_previous,
+    user_detail_success
 )
+from .models import CustomUser
 
 class RegisterView(APIView):
     @swagger_auto_schema(
@@ -106,3 +114,56 @@ class MyTokenRefreshView(TokenRefreshView):
         data = {'access_token':serializer.validated_data['access'],
                     'refresh_token': serializer.validated_data['refresh']}
         return Response(new_refresh_token_create_success(data),status=status.HTTP_200_OK)
+
+
+class ChangePassword(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # function for changing password
+    @swagger_auto_schema(
+    operation_description="Change Password",
+    operation_id='change password',
+    request_body=ChangePasswordSerializer
+    ) 
+    def post(self,request):
+        try:
+            current_password = str(request.data.get("current_password"))
+            new_password = str(request.data.get("new_password"))
+            
+            if len(new_password) < 5:
+                return Response(password_length_issue(),status=status.HTTP_400_BAD_REQUEST)
+            
+            if not check_password(current_password,request.user.password):
+                return Response(user_password_does_not_match(),status=status.HTTP_400_BAD_REQUEST)
+            
+            if check_password(new_password,request.user.password):
+                return Response(user_password_same_as_previous(),status=status.HTTP_400_BAD_REQUEST)
+            
+            user = CustomUser.objects.get(id=request.user.id)
+            user.set_password(str(new_password))
+            user.save()
+            return Response(user_password_change_success(),status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(internal_server_error_response(e),status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+class UserProfileData(APIView):
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    # function for  user profile data 
+    @swagger_auto_schema(
+    operation_description="User Profile",
+    operation_id='user profile'
+    )       
+    def get(self,request):
+        try:
+            user = CustomUser.objects.get(id=request.user.id)
+            serializer = UserReadSerializer(user)
+            return Response(user_detail_success(serializer.data),status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response(internal_server_error_response(e),status=status.HTTP_500_INTERNAL_SERVER_ERROR)

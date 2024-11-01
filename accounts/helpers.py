@@ -57,3 +57,28 @@ def new_refresh_token_create_success(data):
         status=status.HTTP_200_OK,
         data=data
     )
+
+def user_password_does_not_match():
+    return custom_response(
+        message="Password does not match!",
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+def user_password_same_as_previous():
+    return custom_response(
+        message="New password is same as previous one!",
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+def user_password_change_success():
+    return custom_response(
+        message="Your Password Is Updated",
+        status=status.HTTP_200_OK
+    )
+
+def user_detail_success(data):
+    return custom_response(
+        message="User Data",
+        status=status.HTTP_200_OK,
+        data=data
+    )

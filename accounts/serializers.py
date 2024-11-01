@@ -35,6 +35,11 @@ class UserWriteSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(f"Error Creating User: {str(e)}")
 
 
+class UserReadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CustomUser
+        fields = ['id','username','email','phone','created_at','updated_at']
+        
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
@@ -42,3 +47,8 @@ class LoginSerializer(serializers.Serializer):
 
 class TokenRefreshSerializer(serializers.Serializer):
     refresh = serializers.CharField(write_only=True, required=True)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    current_password = serializers.CharField(write_only=True, required=True)
+    new_password = serializers.CharField(write_only=True, required=True)
