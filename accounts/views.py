@@ -39,13 +39,13 @@ class RegisterView(APIView):
                 if serializer.errors.get('phone') and  serializer.errors.get('phone') == ["user with this phone already exists."]:
                     return Response(phone_already_exists(),status=status.HTTP_409_CONFLICT)
                 
-                if serializer.errors.get('password_length'):
+                if serializer.errors.get('password'):
                     return Response(password_length_issue(),status=status.HTTP_400_BAD_REQUEST)
                 
                 return Response(invalid_inputs(serializer.errors),status=status.HTTP_400_BAD_REQUEST)
                 
             serializer.save()
-            return Response(user_create_success(serializer.data.get("id")),status=status.HTTP_200_OK)
+            return Response(user_create_success(serializer.data),status=status.HTTP_201_CREATED)
         
         except Exception as e:
             return Response(internal_server_error_response(e),status=status.HTTP_500_INTERNAL_SERVER_ERROR)

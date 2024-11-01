@@ -28,6 +28,6 @@ def password_length_issue():
 def user_create_success(data):
     return custom_response(
         message="User created successfully",
-        status=status.HTTP_200_OK,
+        status=status.HTTP_201_CREATED,
         data=data
     )

@@ -13,7 +13,7 @@ class UserWriteSerializer(serializers.ModelSerializer):
         Ensure the password is at least 5 characters long.
         """
         if len(value) < 5:
-            raise serializers.ValidationError({"password_length": "Password must be at least 5 characters long."})
+            raise serializers.ValidationError("Password must be at least 5 characters long.")
         return value
     
     def create(self, validated_data):
