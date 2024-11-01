@@ -31,3 +31,29 @@ def user_create_success(data):
         status=status.HTTP_201_CREATED,
         data=data
     )
+
+def invalid_username_or_password():
+    return custom_response(
+        message="Inavalid Username Or Password",
+        status=status.HTTP_404_NOT_FOUND,
+    )
+
+def login_success(data):
+    return custom_response(
+        message="You Are Successfully Logged",
+        status=status.HTTP_200_OK,
+        data=data
+    )
+
+def invalid_refresh_token(e):
+    return custom_response(
+        message=f"Invalid Refresh Token due to {e}",
+        status=status.HTTP_400_BAD_REQUEST
+    )
+
+def new_refresh_token_create_success(data):
+    return custom_response(
+        message="New Token Fetched",
+        status=status.HTTP_200_OK,
+        data=data
+    )

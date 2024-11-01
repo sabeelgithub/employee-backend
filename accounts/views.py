@@ -5,19 +5,28 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from  rest_framework_simplejwt.authentication import JWTAuthentication
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
+from rest_framework_simplejwt.views import TokenRefreshView
 
 
-from .serializers import UserWriteSerializer
+from .serializers import (
+    UserWriteSerializer,
+    LoginSerializer,
+    TokenRefreshSerializer
+    )
+from utils import (
+    internal_server_error_response,
+    invalid_inputs
+)
 from .helpers import (
     username_already_exists,
     email_already_exists,
     phone_already_exists,
     password_length_issue,
-    user_create_success
-)
-from utils import (
-    internal_server_error_response,
-    invalid_inputs
+    user_create_success,
+    invalid_username_or_password,
+    login_success,
+    new_refresh_token_create_success,
+    invalid_refresh_token
 )
 
 class RegisterView(APIView):
@@ -49,3 +58,51 @@ class RegisterView(APIView):
         
         except Exception as e:
             return Response(internal_server_error_response(e),status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class Login(APIView):
+
+    # function for login
+    @swagger_auto_schema(
+    operation_description="Login",
+    operation_id='login',
+    request_body=LoginSerializer
+    )
+    def post(self,request):
+        try:
+            username = request.data['username']
+            password = request.data['password']
+            user = authenticate(request,username=username,password=str(password))
+            if user is not None:
+                login(request,user)
+                refresh = RefreshToken.for_user(user)
+                data = {
+                    'access_token':str(refresh.access_token),
+                    'refresh_token':str(refresh)
+                }
+                return Response(login_success(data),status=status.HTTP_200_OK)
+            
+            return Response(invalid_username_or_password(),status=status.HTTP_404_NOT_FOUND)
+        
+        except Exception as e:
+            return Response(internal_server_error_response(e),status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+class MyTokenRefreshView(TokenRefreshView):
+    # function for getting new acces and refresh token
+    @swagger_auto_schema(
+    operation_description="New Token",
+    operation_id='new token',
+    request_body=TokenRefreshSerializer
+    )
+    def post(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+
+        try:
+            serializer.is_valid(raise_exception=True)
+        except Exception as e:
+            # Handle validation errors here
+            return Response(invalid_refresh_token(e),status=status.HTTP_400_BAD_REQUEST)
+        data = {'access_token':serializer.validated_data['access'],
+                    'refresh_token': serializer.validated_data['refresh']}
+        return Response(new_refresh_token_create_success(data),status=status.HTTP_200_OK)

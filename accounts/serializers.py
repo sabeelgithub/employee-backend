@@ -33,3 +33,12 @@ class UserWriteSerializer(serializers.ModelSerializer):
                 return user
         except Exception as e:
             raise serializers.ValidationError(f"Error Creating User: {str(e)}")
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(required=True)
+
+
+class TokenRefreshSerializer(serializers.Serializer):
+    refresh = serializers.CharField(write_only=True, required=True)
