@@ -3,10 +3,10 @@ from rest_framework.response import Response
 from django.contrib.auth import authenticate, login
 from rest_framework_simplejwt.tokens import RefreshToken
 from  rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework.permissions import IsAuthenticated
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import status
 from rest_framework_simplejwt.views import TokenRefreshView
-from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
 
 from .serializers import (
@@ -39,8 +39,8 @@ from .models import CustomUser
 
 class RegisterView(APIView):
     @swagger_auto_schema(
-    operation_description="Create User",
-    operation_id='create user',
+    operation_description="Register",
+    operation_id='register',
     request_body=UserWriteSerializer
     )
     def post(self, request):
