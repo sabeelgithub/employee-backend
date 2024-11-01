@@ -90,24 +90,15 @@ class EmployeeList(APIView):
 
     @swagger_auto_schema(
     operation_description="Employee List",
-    operation_id="employee list",
-    manual_parameters=[
-            openapi.Parameter('user_id', 
-            openapi.IN_QUERY, 
-            description="User ID", 
-            type=openapi.TYPE_STRING,
-            required=True
-            )
-        ]
+    operation_id="employee list"
     )     
     def post(self,request):
         try:
-            user_id = request.GET.get('user_id')
             filtration_data = request.data.get("filtration_data",None)
             pagination_data = request.data.get("pagination",None)
 
             q_object = filtration_processing(filtration_data)
-            employees = Employee.objects.filter(*q_object,user__id=user_id).order_by('-created_at')
+            employees = Employee.objects.filter(*q_object,user=request.user).order_by('-created_at')
             employees_count = employees.count()
             paged_employees = pagination_processing(pagination_data,employees)
 
