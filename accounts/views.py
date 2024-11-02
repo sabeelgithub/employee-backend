@@ -167,3 +167,10 @@ class UserProfileData(APIView):
         
         except Exception as e:
             return Response(internal_server_error_response(e),status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class Check(APIView):
+    def get(self,request):
+        try:
+            return Response({"message":"checking","status":status.HTTP_200_OK},status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response(internal_server_error_response(e),status=status.HTTP_500_INTERNAL_SERVER_ERROR)
