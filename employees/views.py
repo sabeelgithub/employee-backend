@@ -68,6 +68,7 @@ class EmployeeUpdate(APIView):
     def patch(self,request):
         try:
             employee_id = request.GET.get('id')
+            p
             
             instance = Employee.objects.get(id=employee_id)
             serializer = EmployeeWriteSerializer(instance=instance,data=request.data) 
