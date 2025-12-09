@@ -174,3 +174,25 @@ class Check(APIView):
             return Response({"message":"checking","status":status.HTTP_200_OK},status=status.HTTP_200_OK)
         except Exception as e:
             return Response(internal_server_error_response(e),status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class user_api_controller:   # ❌ Class name should be PascalCase (UserApiController)
+    
+    def __init__(self):
+        self.UserName = None         # ❌ variable should be snake_case: user_name
+        self.userIDNumber = 0        # ❌ mixed camelCase + PascalCase
+        self.API_KEY = "123"         # ❌ constant naming is fine but inside class is bad design
+
+    def GetUserDATA(self, User_id):  # ❌ function should be snake_case
+                                     # ❌ parameter User_id should be user_id
+        resultData = {"Name": "John"}  # ❌ variable should be result_data
+        return resultData
+
+    def process_Request(self):       # ❌ invalid function name (dash not allowed)
+        pass
+
+    def handle_request_DATA(self, RequestType, reqBODY):  
+        # ❌ inconsistent naming: RequestType, reqBODY
+        dataRESULT = {}              # ❌ should be data_result
+        if RequestType == "GET":
+            dataRESULT["status"] = "ok"
+        return dataRESULT
